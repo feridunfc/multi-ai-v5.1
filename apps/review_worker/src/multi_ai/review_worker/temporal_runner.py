@@ -12,7 +12,6 @@ from multi_ai.orchestrator.activities import AgentActivities
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 async def main():
     # 1. Temporal Sunucusuna Bağlan
     logger.info(f"🔌 Connecting to Temporal at {settings.temporal.address}...")
@@ -22,32 +21,30 @@ async def main():
     activities = AgentActivities()
 
     # 3. Sandbox Runner'ı Oluştur
-    # multi_ai paketlerini sandbox dışına alıyoruz
     runner = SandboxedWorkflowRunner(
         restrictions=SandboxRestrictions.default.with_passthrough_modules(
-            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os", "logging", "git"
+            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os", "logging", "git", "sqlite3", "cryptography"
         )
     )
 
-    # 4. Worker'ı Kur
-    # --- DÜZELTME: publisher_publish AKTİVİTESİ EKLENDİ ---
+    # 4. Worker'ı Kur (TUM AKTIVITELER LISTELENDI)
     worker = Worker(
         client,
         task_queue=settings.temporal.task_queue,
         workflows=[SupervisorWorkflow],
         activities=[
-            activities.architect_design,
+            activities.architect_design, 
             activities.coder_implement,
-            activities.publisher_publish  # <--- YENİ OYUNCU
+            activities.publisher_publish,
+            activities.compliance_check  # <--- EKLENEN BU!
         ],
         workflow_runner=runner,
     )
 
-    logger.info("🤖 Temporal Worker Started & Listening for workflows (AI + GIT POWERED)...")
-
+    logger.info("🤖 Temporal Worker Started & Listening for workflows (V5.2 ENTERPRISE)...")
+    
     # 5. Sonsuza kadar çalış
     await worker.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())
