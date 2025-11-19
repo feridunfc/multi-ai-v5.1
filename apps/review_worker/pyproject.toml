@@ -1,0 +1,13 @@
+[tool.poetry]
+name = 'multi-ai-review-worker'
+version = '5.1.0'
+description = 'FastStream worker for processing events'
+packages = [{ include = 'multi_ai/review_worker', from = 'src' }]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+faststream = { extras = ['redis'], version = '^0.5.0' }
+temporalio = '^1.5.0'
+multi-ai-core = { path = '../../libs/core', develop = true }
+multi-ai-events = { path = '../../libs/events', develop = true }
+multi-ai-orchestrator = { path = '../../libs/orchestrator', develop = true }

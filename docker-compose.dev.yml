@@ -1,0 +1,80 @@
+﻿services:
+  redis:
+    image: redis:7-alpine
+    container_name: multi_ai_v51-redis-1
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - default
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: multi_ai_v51-postgres-1
+    hostname: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporal
+      - POSTGRES_DB=temporal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - default
+
+  temporal:
+    image: temporalio/auto-setup:1.22.0
+    container_name: multi_ai_v51-temporal-1
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgres-db
+      - POSTGRES_DB=temporal
+      # 🛑 DÜZELTME BURADA: IP'yi otomatik bul (0.0.0.0 yerine)
+      - BIND_ON_IP=0.0.0.0
+      # Broadcast address'i IP'ye zorlama, auto-discovery kullan
+      - TEMPORAL_BROADCAST_ADDRESS=127.0.0.1
+      - SKIP_DEFAULT_NAMESPACE_CREATION=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - default
+
+  temporal-ui:
+    image: temporalio/ui:2.23.0
+    container_name: multi_ai_v51-temporal-ui-1
+    ports:
+      - "8080:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      - temporal
+    networks:
+      - default
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  default:
+    driver: bridge

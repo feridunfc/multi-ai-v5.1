@@ -1,0 +1,13 @@
+[tool.poetry]
+name = 'multi-ai-api-gateway'
+version = '5.1.0'
+description = 'FastAPI GitHub webhook gateway'
+packages = [{ include = 'multi_ai/api_gateway', from = 'src' }]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+fastapi = '^0.104.1'
+uvicorn = { extras = ['standard'], version = '^0.24.0' }
+httpx = '^0.25.0'
+multi-ai-core = { path = '../../libs/core', develop = true }
+multi-ai-events = { path = '../../libs/events', develop = true }

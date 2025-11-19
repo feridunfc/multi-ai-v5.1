@@ -1,0 +1,17 @@
+[tool.poetry]
+name = 'multi-ai-events'
+version = '5.1.0'
+description = 'Event schemas and Redis/FastStream broker'
+packages = [{ include = 'multi_ai/events', from = 'src' }]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+pydantic = '^2.5.0'
+faststream = { extras = ['redis'], version = '^0.5.0' }
+redis = '^5.0.0'
+tenacity = '^8.2.3'
+multi-ai-core = { path = '../core', develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = '^7.4.0'
+pytest-asyncio = '^0.21.0'

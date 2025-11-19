@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/libs/core/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/events/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/llm/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/orchestrator/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/sandbox/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.13 (MULTI_AI_v51)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

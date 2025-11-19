@@ -1,0 +1,13 @@
+[tool.poetry]
+name = 'multi-ai-sandbox'
+version = '5.1.0'
+description = 'Secure file system operations for agents'
+packages = [{include = 'multi_ai', from = 'src'}]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+multi-ai-core = {path = '../core', develop = true}
+
+[build-system]
+requires = ['poetry-core']
+build-backend = 'poetry.core.masonry.api'

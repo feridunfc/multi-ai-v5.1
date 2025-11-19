@@ -1,0 +1,15 @@
+[tool.poetry]
+name = 'multi-ai-llm'
+version = '5.1.0'
+description = 'Unified LLM Client (Ollama & OpenAI)'
+packages = [{include = 'multi_ai', from = 'src'}]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+openai = '^1.12.0'
+tenacity = '^8.2.0'
+multi-ai-core = {path = '../core', develop = true}
+
+[build-system]
+requires = ['poetry-core']
+build-backend = 'poetry.core.masonry.api'
