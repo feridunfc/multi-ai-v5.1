@@ -31,6 +31,7 @@ multi-ai-core = {path = "./libs/core", develop = true}
 multi-ai-events = {path = "./libs/events", develop = true}
 multi-ai-orchestrator = {path = "./libs/orchestrator", develop = true}
 multi-ai-sandbox = {path = "libs/sandbox", develop = true}
+multi-ai-git = {path = "libs/git", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = '^7.4.0'

@@ -21,24 +21,29 @@ async def main():
     # 2. Aktiviteleri (Ajanları) Hazırla
     activities = AgentActivities()
 
-    # 3. Sandbox Runner'ı Oluştur (Context Manager OLMADAN)
+    # 3. Sandbox Runner'ı Oluştur
     # multi_ai paketlerini sandbox dışına alıyoruz
     runner = SandboxedWorkflowRunner(
         restrictions=SandboxRestrictions.default.with_passthrough_modules(
-            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os", "logging"
+            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os", "logging", "git"
         )
     )
 
     # 4. Worker'ı Kur
+    # --- DÜZELTME: publisher_publish AKTİVİTESİ EKLENDİ ---
     worker = Worker(
         client,
         task_queue=settings.temporal.task_queue,
         workflows=[SupervisorWorkflow],
-        activities=[activities.architect_design, activities.coder_implement],
-        workflow_runner=runner,  # <--- Runner'ı buraya verdik
+        activities=[
+            activities.architect_design,
+            activities.coder_implement,
+            activities.publisher_publish  # <--- YENİ OYUNCU
+        ],
+        workflow_runner=runner,
     )
 
-    logger.info("🤖 Temporal Worker Started & Listening for workflows (AI POWERED)...")
+    logger.info("🤖 Temporal Worker Started & Listening for workflows (AI + GIT POWERED)...")
 
     # 5. Sonsuza kadar çalış
     await worker.run()

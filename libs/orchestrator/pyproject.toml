@@ -9,7 +9,9 @@ python = '>=3.11,<3.14'
 temporalio = '^1.5.0'
 multi-ai-core = {path = '../core', develop = true}
 multi-ai-events = {path = '../events', develop = true}
-multi-ai-llm = {path = '../llm', develop = true}  # <--- YENİ BAĞIMLILIK
+multi-ai-llm = {path = '../llm', develop = true}
+multi-ai-sandbox = {path = '../sandbox', develop = true}
+multi-ai-git = {path = '../git', develop = true}  # <--- YENİ EKLENDİ
 
 [build-system]
 requires = ['poetry-core']

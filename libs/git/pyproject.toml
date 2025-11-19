@@ -1,0 +1,14 @@
+[tool.poetry]
+name = 'multi-ai-git'
+version = '5.1.0'
+description = 'Git operations wrapper for agents'
+packages = [{include = 'multi_ai', from = 'src'}]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+gitpython = '^3.1.40'
+multi-ai-core = {path = '../core', develop = true}
+
+[build-system]
+requires = ['poetry-core']
+build-backend = 'poetry.core.masonry.api'
