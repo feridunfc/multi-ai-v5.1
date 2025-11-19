@@ -1,0 +1,16 @@
+[tool.poetry]
+name = 'multi-ai-agents'
+version = '5.2.0'
+description = 'Advanced AI Agents (Supervisor, Researcher, Architect)'
+packages = [{include = 'multi_ai', from = 'src'}]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+multi-ai-core = {path = '../core', develop = true}
+multi-ai-llm = {path = '../llm', develop = true}
+multi-ai-sandbox = {path = '../sandbox', develop = true}
+multi-ai-compliance = {path = '../compliance', develop = true}
+
+[build-system]
+requires = ['poetry-core']
+build-backend = 'poetry.core.masonry.api'
