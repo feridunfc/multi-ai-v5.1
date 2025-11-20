@@ -81,3 +81,5 @@ markers = [
     'e2e: end-to-end tests',
     'security: security tests'
 ]
+
+multi-ai-rag = {path = "./libs/rag", develop = true}

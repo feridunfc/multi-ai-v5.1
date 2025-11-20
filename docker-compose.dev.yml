@@ -1,4 +1,6 @@
-﻿services:
+﻿version: "3.8"
+
+services:
   redis:
     image: redis:7-alpine
     container_name: multi_ai_v51-redis-1
@@ -47,9 +49,7 @@
       - POSTGRES_PWD=temporal
       - POSTGRES_SEEDS=postgres-db
       - POSTGRES_DB=temporal
-      # 🛑 DÜZELTME BURADA: IP'yi otomatik bul (0.0.0.0 yerine)
       - BIND_ON_IP=0.0.0.0
-      # Broadcast address'i IP'ye zorlama, auto-discovery kullan
       - TEMPORAL_BROADCAST_ADDRESS=127.0.0.1
       - SKIP_DEFAULT_NAMESPACE_CREATION=false
     depends_on:
@@ -71,9 +71,21 @@
     networks:
       - default
 
+  # --- YENİ EKLENEN: RAG MEMORY ---
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: multi_ai_v51-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - default
+
 volumes:
   redis_data:
   postgres_data:
+  qdrant_data: # <--- Yeni Volume
 
 networks:
   default:
