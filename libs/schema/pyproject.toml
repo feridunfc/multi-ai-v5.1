@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "multi-ai-schema"
+version = "5.2.0"
+description = "Data models and schemas"
+packages = [{include = "multi_ai", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.14"
+pydantic = "^2.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

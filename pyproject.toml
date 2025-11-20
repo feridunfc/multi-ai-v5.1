@@ -34,6 +34,8 @@ multi-ai-llm = {path = './libs/llm', develop = true}
 multi-ai-sandbox = {path = './libs/sandbox', develop = true}
 multi-ai-git = {path = './libs/git', develop = true}
 multi-ai-compliance = {path = './libs/compliance', develop = true}
+reportlab = "^4.4.5"
+qrcode = "^8.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = '^7.4.0'
