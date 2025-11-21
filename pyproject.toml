@@ -3,7 +3,7 @@ name = 'multi-ai-platform'
 version = '5.2.0'
 description = 'Enterprise Multi-AI Agent Platform'
 authors = ['Enterprise AI Team <ai-platform@example.com>']
-package-mode = false
+package-mode = true
 
 [tool.poetry.dependencies]
 python = '>=3.11,<3.14'
@@ -36,6 +36,12 @@ multi-ai-git = {path = './libs/git', develop = true}
 multi-ai-compliance = {path = './libs/compliance', develop = true}
 reportlab = "^4.4.5"
 qrcode = "^8.2"
+multi-ai-utils = {path = "libs/utils", develop = true}
+multi-ai-agents = {path = "libs/agents", develop = true}
+multi-ai-rag = {path = "libs/rag", develop = true}
+streamlit = "^1.51.0"
+plotly = "^6.5.0"
+flask = "^3.1.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = '^7.4.0'

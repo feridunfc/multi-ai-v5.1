@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "multi-ai-utils"
+version = "0.1.0"
+description = "Shared utility functions"
+authors = ["Feridun <email@adresi.com>"]
+packages = [{include = "multi_ai", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+# Eğer robust_ollama_client içinde 'requests' veya 'httpx' kullanıyorsanız buraya ekleyin:
+# requests = "^2.31.0" 
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

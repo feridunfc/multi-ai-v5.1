@@ -1,5 +1,5 @@
-from .client import llm_client, LLMClient
+# libs/llm/src/multi_ai/llm/__init__.py
+from .hybrid_router import llm_router
+from .parser import CodeParser
 
-__all__ = ['llm_client', 'LLMClient']
-\nfrom .router import hybrid_router
-from .router import hybrid_router
+__all__ = ['llm_router', 'CodeParser']
