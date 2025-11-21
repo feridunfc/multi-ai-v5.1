@@ -1,6 +1,6 @@
 [tool.poetry]
 name = 'multi-ai-platform'
-version = '6.1.0'
+version = '5.2.0'
 description = 'Enterprise Multi-AI Agent Platform'
 authors = ['Enterprise AI Team <ai-platform@example.com>']
 package-mode = false
@@ -25,15 +25,8 @@ pyyaml = '^6.0.1'
 async-timeout = '^4.0.3'
 tenacity = '^8.2.3'
 prometheus-client = '^0.19.0'
-streamlit = '^1.29.0'
-pandas = '^2.1.4'
-plotly = '^5.18.0'
-reportlab = '^4.0.0'
-qrcode = '^7.4.2'
-qdrant-client = '^1.7.0'
-sentence-transformers = '^2.2.0'
 
-# --- LOCAL PACKAGES (COMPLETE LIST) ---
+# --- LOCAL PACKAGES ---
 multi-ai-core = {path = './libs/core', develop = true}
 multi-ai-events = {path = './libs/events', develop = true}
 multi-ai-orchestrator = {path = './libs/orchestrator', develop = true}
@@ -41,10 +34,8 @@ multi-ai-llm = {path = './libs/llm', develop = true}
 multi-ai-sandbox = {path = './libs/sandbox', develop = true}
 multi-ai-git = {path = './libs/git', develop = true}
 multi-ai-compliance = {path = './libs/compliance', develop = true}
-multi-ai-agents = {path = './libs/agents', develop = true}
-multi-ai-utils = {path = './libs/utils', develop = true}
-multi-ai-schema = {path = './libs/schema', develop = true}
-multi-ai-rag = {path = './libs/rag', develop = true}
+reportlab = "^4.4.5"
+qrcode = "^8.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = '^7.4.0'
@@ -63,3 +54,30 @@ faker = '^20.0.0'
 [build-system]
 requires = ['poetry-core']
 build-backend = 'poetry.core.masonry.api'
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = 'black'
+multi_line_output = 3
+
+[tool.mypy]
+python_version = '3.11'
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+asyncio_mode = 'auto'
+minversion = '7.0'
+addopts = '--strict-markers --strict-config --cov=libs --cov-report=xml --cov-report=term-missing'
+markers = [
+    'unit: unit tests',
+    'integration: integration tests',
+    'e2e: end-to-end tests',
+    'security: security tests'
+]
