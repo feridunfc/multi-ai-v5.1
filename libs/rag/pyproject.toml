@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "multi-ai-rag"
+version = "6.0.0"
+description = "RAG Engine for Codebase Understanding"
+packages = [{include = "multi_ai", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.14"
+qdrant-client = "^1.7.0"
+sentence-transformers = "^2.2.0"
+multi-ai-core = {path = "../core", develop = true}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

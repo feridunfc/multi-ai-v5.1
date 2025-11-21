@@ -1,83 +1,85 @@
-﻿import base64
-import os
-import asyncio
-from typing import Optional, ClassVar, Dict
-from contextlib import asynccontextmanager
-
+﻿import hashlib
+import hmac
+import logging
+from typing import Optional, Dict, Any
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization
+
+logger = logging.getLogger(__name__)
 
 
-class KMSClient:
-    async def get_secret(self, key: str) -> Optional[str]:
-        raise NotImplementedError
+class SecurityValidator:
+    """Güvenlik doğrulama sınıfı"""
 
-    async def set_secret(self, key: str, value: str) -> bool:
-        raise NotImplementedError
+    def __init__(self, secret_key: Optional[str] = None):
+        self.secret_key = secret_key or Fernet.generate_key().decode()
+        self.cipher_suite = Fernet(self.secret_key.encode())
 
-    async def health_check(self) -> bool:
-        raise NotImplementedError
-
-
-class LocalKMSClient(KMSClient):
-    def __init__(self) -> None:
-        self._secrets: Dict[str, str] = {}
-        self._lock = asyncio.Lock()
-        
-        password = os.getenv("LOCAL_KMS_PASSWORD", "default-insecure-password").encode()
-        salt = os.urandom(16)
-        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100_000)
-        key = base64.urlsafe_b64encode(kdf.derive(password))
-        self._fernet = Fernet(key)
-
-    async def get_secret(self, key: str) -> Optional[str]:
-        async with self._lock:
-            enc = self._secrets.get(key)
-            if not enc:
-                return None
-            return self._fernet.decrypt(enc.encode()).decode()
-
-    async def set_secret(self, key: str, value: str) -> bool:
-        async with self._lock:
-            enc = self._fernet.encrypt(value.encode()).decode()
-            self._secrets[key] = enc
+    def validate_github_webhook(self, payload: bytes, signature: str) -> bool:
+        """GitHub webhook imzasını doğrula"""
+        if not self.secret_key:
+            logger.warning("Secret key not set, skipping validation")
             return True
 
-    async def health_check(self) -> bool:
-        return True
+        expected_signature = "sha256=" + hmac.new(
+            self.secret_key.encode(),
+            payload,
+            hashlib.sha256
+        ).hexdigest()
+
+        return hmac.compare_digest(signature, expected_signature)
+
+    def encrypt_sensitive_data(self, data: str) -> str:
+        """Hassas verileri şifrele"""
+        encrypted = self.cipher_suite.encrypt(data.encode())
+        return encrypted.decode()
+
+    def decrypt_sensitive_data(self, encrypted_data: str) -> str:
+        """Şifreli veriyi çöz"""
+        decrypted = self.cipher_suite.decrypt(encrypted_data.encode())
+        return decrypted.decode()
+
+    def validate_manifest_hash(self, manifest_data: Dict[str, Any], expected_hash: str) -> bool:
+        """Manifest hash'ini doğrula"""
+        import json
+        manifest_json = json.dumps(manifest_data, sort_keys=True)
+        computed_hash = hashlib.sha256(manifest_json.encode()).hexdigest()
+        return computed_hash == expected_hash
 
 
 class KMSManager:
-    _instance: ClassVar[Optional["KMSManager"]] = None
+    """Key Management System Manager"""
 
-    def __init__(self) -> None:
-        self._client: KMSClient = LocalKMSClient()
+    def __init__(self):
+        self.private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        self.public_key = self.private_key.public_key()
 
-    @classmethod
-    async def get_instance(cls) -> "KMSManager":
-        if cls._instance is None:
-            cls._instance = KMSManager()
-        return cls._instance
+    def get_public_key_pem(self) -> str:
+        """Public key'i PEM formatında getir"""
+        pem = self.public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        return pem.decode()
 
-    async def get_secret(self, key: str) -> Optional[str]:
-        env_key = f"MULTI_AI_{key.upper()}"
-        env_val = os.getenv(env_key)
-        if env_val:
-            return env_val
-        return await self._client.get_secret(key)
+    def sign_data(self, data: bytes) -> bytes:
+        """Veriyi imzala"""
+        signature = self.private_key.sign(
+            data,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        return signature
 
-    async def set_secret(self, key: str, value: str) -> bool:
-        return await self._client.set_secret(key, value)
 
-    async def health_check(self) -> bool:
-        return await self._client.health_check()
-
-    @asynccontextmanager
-    async def secret_context(self, key: str):
-        secret = await self.get_secret(key)
-        try:
-            yield secret
-        finally:
-            if secret:
-                del secret
+# Global instances
+kms_manager = KMSManager()
+security_validator = SecurityValidator()

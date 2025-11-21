@@ -1,0 +1,19 @@
+[tool.poetry]
+name = 'multi-ai-reporting'
+version = '6.0.0'
+description = 'PDF and Audit Reporting Utilities'
+packages = [{include = 'multi_ai', from = 'src'}]
+
+[tool.poetry.dependencies]
+python = '>=3.11,<3.14'
+streamlit = '^1.29.0' # UI icin
+pandas = '^2.1.4'     # Dataframe gosterimi icin
+plotly = '^5.18.0'    # Grafik icin
+reportlab = '^4.0.0'
+
+multi-ai-core = {path = '../core', develop = true}
+multi-ai-utils = {path = '../utils', develop = true}
+
+[build-system]
+requires = ['poetry-core']
+build-backend = 'poetry.core.masonry.api'

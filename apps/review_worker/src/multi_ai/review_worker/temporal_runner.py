@@ -19,7 +19,7 @@ async def main():
     
     runner = SandboxedWorkflowRunner(
         restrictions=SandboxRestrictions.default.with_passthrough_modules(
-            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os", "logging", "git", "sqlite3", "cryptography", "json"
+            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os", "logging", "git", "sqlite3", "cryptography", "json", "subprocess", "sys"
         )
     )
 
@@ -28,17 +28,18 @@ async def main():
         task_queue=settings.temporal.task_queue,
         workflows=[SupervisorWorkflow],
         activities=[
-            activities.research_task,      # YENI
+            activities.research_task,
             activities.architect_design, 
             activities.coder_implement,
-            activities.supervisor_review,  # YENI
+            activities.tester_run,      # YENI
+            activities.debugger_fix,    # YENI
             activities.compliance_check,
             activities.publisher_publish
         ],
         workflow_runner=runner,
     )
 
-    logger.info("🤖 Temporal Worker V5.2 Started (ALL SYSTEMS GO)...")
+    logger.info("🤖 Temporal Worker V6.0 Started (SELF-HEALING ENABLED)...")
     await worker.run()
 
 if __name__ == "__main__":

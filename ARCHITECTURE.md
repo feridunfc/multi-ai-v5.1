@@ -240,4 +240,112 @@ Dashboard'da: "Human Approval" bekler. Onaylarsanız Git'e gönderir.
 
 📜 LİSANS
 
-Bu proje MIT Lisansı altındadır.
+
+
+🏛️ MULTI-AI V6.1 ENTERPRISE — ARCHITECT MASTER BOOK
+
+Versiyon: 6.1 (Final Release)
+
+Mimari: Event-Driven, Multi-Agent, Self-Healing, HITL
+
+Lisans: MIT
+
+1️⃣ YÖNETİCİ ÖZETİ: BU PLATFORM NE İŞE YARAR?
+
+Multi-AI V6.1, yazılım geliştirme sürecini (Analiz, Kodlama, Test, Güvenlik, Yayınlama) otonom bir üretim bandına dönüştüren, kurumsal seviyede bir "Yapay Zeka Yazılım Fabrikasıdır".
+
+Sistem, sadece kod üretmez; ürettiği kodu:
+
+Hatırlar (RAG): Projenin mevcut kod tabanını (Qdrant) okuyarak bağlamsal kod yazar.
+
+Onarır (Self-Healing): Kodda hata çıkarsa (Syntax, Logic), kendi kendini debug eder ve düzeltir (Max 3 döngü).
+
+Denetler (Compliance): SOC2/GDPR standartlarına aykırı kodları (örn: hardcoded şifre) bloklar.
+
+Yönetir (HITL): Kritik dağıtımlarda durup insan onayı (Web UI üzerinden) bekler.
+
+Kaydeder (Ledger): Her işlemi kriptografik olarak imzalayıp değiştirilemez bir deftere yazar.
+
+2️⃣ SİSTEM MİMARİSİ (TEKNİK DETAY)
+
+Sistem 6 ana katmandan oluşur.
+
+A. Zeka Katmanı (The Brain)
+
+HybridIntelligenceRouter: İsteğin zorluğuna göre karar verir. Basit işleri Ollama (Llama 3.2), karmaşık işleri Cloud (OpenAI/Anthropic) modellerine yönlendirir.
+
+RobustOllamaClient: Ağ hatalarına karşı dirençli, CircuitBreaker korumalı yerel yapay zeka istemcisi.
+
+B. Orkestrasyon Katmanı (The Nervous System)
+
+EnhancedOrchestrator (Temporal): İş akışlarını yöneten durum koruyan (stateful) motor. Sunucu çökse bile kaldığı yerden devam eder.
+
+ReviewWorker (FastStream): Redis üzerinden gelen olayları dinler ve Temporal iş akışlarını tetikler.
+
+C. Operasyonel Ajanlar (The Workers)
+
+Researcher: RAG kullanarak mevcut kod tabanını tarar ve analiz raporu çıkarır.
+
+Architect: Gereksinimlere göre teknik manifesto (JSON plan) oluşturur.
+
+Coder: Manifestoyu uygular, SecureSandbox içinde kodu yazar.
+
+Tester & Debugger: Kodu test eder, hata varsa düzeltir (Self-Healing Loop).
+
+Publisher: Onaylanan kodu Git'e commit eder.
+
+D. Güvenlik ve Yönetişim (The Guardrails)
+
+ComplianceManager: Kodu AST (Abstract Syntax Tree) ile tarar. Yasaklı fonksiyonları engeller.
+
+BudgetGuard: Token kullanımını ve maliyeti anlık takip eder.
+
+SecureSandbox: Kodları Docker içinde, internet erişimi kısıtlanmış ortamda çalıştırır.
+
+E. Denetim ve Kokpit (The Cockpit)
+
+SignedLedger: Her aksiyonu kriptografik imza ile kaydeder.
+
+Web Dashboard (Streamlit): Bütçe, performans, güvenlik ihlalleri ve onay bekleyen işleri gösteren yönetim paneli.
+
+3️⃣ PROJE DİZİN AĞACI (FINAL TREE)
+
+multi-ai-v6.1/
+├── apps/                       # Çalıştırılabilir Servisler
+│   ├── api_gateway/            # FastAPI Webhook Sunucusu
+│   ├── review_worker/          # Temporal Worker (Ajanların çalıştığı yer)
+│   └── ui/                     # Streamlit Yönetim Paneli (Kokpit)
+├── libs/                       # Modüler Kütüphaneler
+│   ├── agents/                 # (Researcher, Coder, Supervisor, Tester, Debugger)
+│   ├── compliance/             # (ComplianceManager, AST Analyzer)
+│   ├── core/                   # (Ledger, Budget, Metrics, Settings)
+│   ├── events/                 # (Redis Event Schemas)
+│   ├── git/                    # (GitPython Wrapper)
+│   ├── llm/                    # (Hybrid Router, Robust Client)
+│   ├── orchestrator/           # (Temporal Workflows & Activities)
+│   ├── rag/                    # (Qdrant Vector DB Entegrasyonu)
+│   ├── sandbox/                # (Secure Docker Sandbox)
+│   ├── schema/                 # (Pydantic Manifest Modelleri)
+│   └── utils/                  # (PDF Reporter, Circuit Breaker)
+├── infra/                      # Altyapı
+├── docker-compose.dev.yml      # Full Stack (AI, DB, Queue, Vector)
+└── pyproject.toml              # Bağımlılık Yönetimi
+
+
+4️⃣ NASIL ÇALIŞIR? (SENARYO: SELF-HEALING + HITL)
+
+Tetikleme: GitHub'dan "Buggy Script" isteği gelir.
+
+Hafıza: Researcher, projeyi tarar.
+
+Kodlama: Coder, hatalı kodu yazar.
+
+Oto-Tamir: Tester hatayı yakalar -> Debugger analiz eder -> Coder düzeltir. (3 Kez)
+
+Güvenlik: Compliance kodu tarar. Temizse devam eder.
+
+İnsan Onayı: Workflow durur. Yönetici Web UI'dan "Onayla" butonuna basar.
+
+Teslimat: Publisher kodu Git'e pushlar.
+
+Multi-AI Team © 2025

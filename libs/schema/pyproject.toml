@@ -1,4 +1,4 @@
-[tool.poetry]
+﻿[tool.poetry]
 name = "multi-ai-schema"
 version = "5.2.0"
 description = "Data models and schemas"

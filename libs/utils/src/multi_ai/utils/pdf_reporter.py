@@ -1,5 +1,5 @@
+﻿import json
 import os
-import json
 import sqlite3
 from io import BytesIO
 from datetime import datetime
@@ -35,9 +35,8 @@ class PDFReporter:
     def generate_ledger_report(self, sprint_id: str) -> str:
         db_path = '.cache/ledger.db'
         
-        # Hata burada olusuyordu, simdi duzeldi
         if not os.path.exists(db_path):
-            return 'No ledger database found.'
+            return "No ledger database found."
             
         conn = sqlite3.connect(db_path)
         cursor = conn.execute('SELECT timestamp, action, hash FROM ledger_entries WHERE sprint_id = ?', (sprint_id,))
@@ -45,20 +44,18 @@ class PDFReporter:
         conn.close()
 
         file_path = f'.cache/report_{sprint_id.replace("/", "_")}.pdf'
-        
-        # Cache klasoru yoksa olustur
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         doc = SimpleDocTemplate(file_path, pagesize=A4)
         story = []
         
-        story.append(Paragraph(f'Audit Report: {sprint_id}', self.styles['Title2']))
+        story.append(Paragraph(f"Audit Report: {sprint_id}", self.styles['Title2']))
         story.append(Spacer(1, 12))
         
         if events:
             story.append(self._events_table(events))
         else:
-            story.append(Paragraph('No events found for this sprint.', self.styles['Normal']))
+            story.append(Paragraph("No events found for this sprint.", self.styles['Normal']))
             
         doc.build(story)
         return file_path
