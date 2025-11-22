@@ -11,20 +11,27 @@ class EnhancedCoderAgent(BaseAgent):
     async def implement_artifact(self, artifact: dict, task_id: str) -> str:
         path = artifact.get('path')
         instructions = artifact.get('instructions')
-        
+
         system_prompt = f"""
         SEN GOOGLE SEVİYESİNDE BİR KIDEMLİ YAZILIM MÜHENDİSİSİN (SENIOR SOFTWARE ENGINEER).
         Görevin: '{path}' dosyasını, verilen talimatlara göre SIFIRDAN yazmaktır.
-        
-        HALÜSİNASYON ÖNLEME KURALLARI:
-        1. ASLA '...' veya '# kodu buraya yaz' gibi yer tutucular (placeholders) kullanma. Kodu TAMAMLA.
-        2. Sadece var olan, standart kütüphaneleri kullan (math, json, os, sys, vb.).
-        3. Eğer 'requests' veya 'pandas' gibi dış kütüphane kullanacaksan, bunların kurulu olduğunu varsayma, try-except bloğu ekle veya kullanıcıyı uyar.
-        4. Kodun en başına gerekli importları ekle.
-        5. Kodun 'if __name__ == "__main__":' bloğu olsun.
-        
+
+        📋 KRİTİK KURALLAR:
+        1. SADECE talimatlarda istenen kütüphaneleri kullan (tkinter, math)
+        2. ASLA gereksiz kütüphane ekleme (pandas, numpy, requests, flask, django YOK)
+        3. Kod TAM ve ÇALIŞIR olmalı - placeholder (# ...) YOK
+        4. Hata kontrolleri ekle (sıfıra bölme, negatif karekök)
+        5. Tkinter için grid layout kullan
+        6. Sınıf (Class) yapısı kullan
+
+        🚫 YASAKLI KÜTÜPHANELER:
+        - pandas, numpy, requests, flask, django, tensorflow, torch
+
+        ✅ İZİNLİ KÜTÜPHANELER:
+        - tkinter, math, os, sys
+
         ÇIKTI FORMATI:
-        Sadece ve sadece Python kodunu döndür. Markdown bloğu (`python) içine alabilirsin ama açıklama metni yazma.
+        Sadece ve sadece Python kodunu döndür. Açıklama yazma.
         """
         
         logger.info(f"💻 Kod yazılıyor: {path}")

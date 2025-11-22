@@ -2,25 +2,17 @@ import asyncio
 import logging
 import sys
 import os
+from temporalio.client import Client
+from temporalio.worker import Worker
+from temporalio.worker.workflow_sandbox import SandboxedWorkflowRunner, SandboxRestrictions
 
 
-# --- CRITICAL FIX: EN BAŞTA YOLLARI AYARLA ---
+# --- CRITICAL FIX: YOLLARI AYARLA ---
 def setup_paths():
-    """Proje yollarını doğru şekilde ayarlar - AGGRESSIVE FIX"""
-    # Proje Kök Dizinini Belirle
-    # __file__ kullanarak dinamik bulmak daha güvenlidir ama manuel de olur
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # apps/review_worker/src/multi_ai/review_worker -> ../../../../.. -> Root
     project_root = os.path.abspath(os.path.join(current_dir, "../../../../../"))
 
-    # Eğer otomatik bulamazsa manuel yolu kullan (Yedek)
-    if not os.path.exists(os.path.join(project_root, "libs")):
-        project_root = r"C:\Users\user\PycharmProjects\MULTI_AI_v51"
-
-    print(f"🎯 Proje Kök Dizini: {project_root}")
-
-    # Eklenecek kritik yollar
-    paths_to_add = [
+    manual_paths = [
         os.path.join(project_root, "libs", "utils", "src"),
         os.path.join(project_root, "libs", "agents", "src"),
         os.path.join(project_root, "libs", "orchestrator", "src"),
@@ -30,23 +22,15 @@ def setup_paths():
         os.path.join(project_root, "libs", "compliance", "src"),
         os.path.join(project_root, "libs", "sandbox", "src"),
         os.path.join(project_root, "libs", "git", "src"),
-        project_root  # Root'u da ekle
     ]
-
-    # Yolları sys.path'in en başına ekle
-    for p in paths_to_add:
+    for p in manual_paths:
         if p not in sys.path:
             sys.path.insert(0, p)
-            print(f"✅ Yol Eklendi: {p}")
 
 
-setup_paths()  # <--- KRİTİK: Bunu en başta çağırıyoruz
+setup_paths()  # En başta çağırılmalı
 
-# --- ŞİMDİ IMPORTLARI YAPABİLİRİZ ---
-from temporalio.client import Client
-from temporalio.worker import Worker
-from temporalio.worker.workflow_sandbox import SandboxedWorkflowRunner, SandboxRestrictions
-
+# --- KRİTİK IMPORTLAR ---
 from multi_ai.core.settings import settings
 from multi_ai.orchestrator.workflows import SupervisorWorkflow
 from multi_ai.orchestrator.activities import AgentActivities
@@ -59,40 +43,33 @@ logger = logging.getLogger(__name__)
 async def main():
     logger.info("🚀 Worker Başlatılıyor...")
 
-    # 1. Ollama Bağlantı Testi
-    logger.info(f"🔌 Ollama Bağlantısı Test Ediliyor ({settings.ollama.base_url})...")
+    # 1. Ollama Bağlantı Testi (Gereksiz 404'ü önler)
     try:
         client = RobustOllamaClient()
-        # Basit bir ping at
         await client.generate(model="llama3.2:1b", prompt="ping", options={"num_ctx": 1})
         logger.info("✅ Ollama Bağlantısı BAŞARILI!")
     except Exception as e:
         logger.error(f"❌ Ollama Bağlantı Hatası: {e}")
-        logger.warning("⚠️ Devam ediliyor ama ajanlar hata verebilir...")
-
-    # 2. Temporal Bağlantısı
-    logger.info(f"🔌 Temporal'a bağlanılıyor ({settings.temporal.address})...")
-    try:
-        client = await Client.connect(settings.temporal.address, namespace="default")
-    except Exception as e:
-        logger.error(f"❌ Temporal Bağlantı Hatası: {e}")
         return
 
-    # 3. Worker Yapılandırması
+    # 2. Temporal Client ve Worker
+    client = await Client.connect(settings.temporal.address, namespace="default")
     activities = AgentActivities()
 
+    # Sandbox kısıtlamaları (Code Execution için şart)
     runner = SandboxedWorkflowRunner(
         restrictions=SandboxRestrictions.default.with_passthrough_modules(
-            "multi_ai", "pydantic", "pydantic_settings", "pathlib", "os",
-            "logging", "git", "sqlite3", "cryptography", "json", "subprocess", "sys", "httpx", "tenacity"
+            "multi_ai", "pydantic", "pathlib", "os", "logging", "sys"
         )
     )
 
+    # ⭐ DÜZELTME: prompt_optimize activity'sini EKLE
     worker = Worker(
         client,
         task_queue=settings.temporal.task_queue,
         workflows=[SupervisorWorkflow],
         activities=[
+            activities.prompt_optimize,      # ⭐ YENİ: Prompt Agent
             activities.research_task,
             activities.architect_design,
             activities.coder_implement,
@@ -105,7 +82,6 @@ async def main():
     )
 
     logger.info(f"🤖 Temporal Worker Hazır! Kuyruk: {settings.temporal.task_queue}")
-    logger.info("waiting for tasks...")
     await worker.run()
 
 
