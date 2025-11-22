@@ -1,28 +1,8 @@
-import logging
-import json
-from typing import Dict, Optional
-from multi_ai.llm.client import llm_client
+﻿from .base import BaseAgent
 
-logger = logging.getLogger(__name__)
-
-class EnhancedSupervisorAgent:
+class EnhancedSupervisorAgent(BaseAgent):
     def __init__(self):
-        self.llm = llm_client
-
-    async def supervise_sprint(self, sprint_data: Dict) -> Dict:
-        logger.info('👀 Supervisor reviewing sprint...')
-        
-        prompt = f'''
-        ROLE: Project Supervisor & QA Lead
-        DATA: {json.dumps(sprint_data)}
-        
-        TASK: Evaluate quality, risks and approve/reject.
-        OUTPUT: JSON {{ "decision": "approved|rejected", "score": 0-100, "reason": "..." }}
-        '''
-        
-        try:
-            response = await self.llm.generate(prompt=prompt)
-            clean_json = response.replace('`json', '').replace('`', '').strip()
-            return json.loads(clean_json)
-        except Exception as e:
-            return {'decision': 'rejected', 'reason': f'Supervision failed: {e}'}
+        super().__init__(role="Supervisor", model="qwen2.5:7b")
+    
+    async def review_process(self, context: dict):
+        return "Approved"

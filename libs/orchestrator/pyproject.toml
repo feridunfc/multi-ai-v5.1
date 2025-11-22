@@ -1,18 +1,16 @@
 [tool.poetry]
-name = 'multi-ai-orchestrator'
-version = '5.1.0'
-description = 'Temporal workflow definitions'
-packages = [{include = 'multi_ai', from = 'src'}]
+name = "multi-ai-orchestrator"
+version = "0.1.0"
+description = "Workflow Orchestrator"
+authors = ["MultiAI Team"]
+packages = [{include = "multi_ai", from = "src"}]
 
 [tool.poetry.dependencies]
-python = '>=3.11,<3.14'
-temporalio = '^1.5.0'
-multi-ai-core = {path = '../core', develop = true}
-multi-ai-events = {path = '../events', develop = true}
-multi-ai-llm = {path = '../llm', develop = true}
-multi-ai-sandbox = {path = '../sandbox', develop = true}
-multi-ai-git = {path = '../git', develop = true}  # <--- YENİ EKLENDİ
+python = "^3.10"
+temporalio = "^1.4.0"
+multi-ai-core = {path = "../core", develop = true}
+multi-ai-agents = {path = "../agents", develop = true}
 
 [build-system]
-requires = ['poetry-core']
-build-backend = 'poetry.core.masonry.api'
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

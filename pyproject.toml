@@ -1,89 +1,44 @@
 [tool.poetry]
-name = 'multi-ai-platform'
-version = '5.2.0'
-description = 'Enterprise Multi-AI Agent Platform'
-authors = ['Enterprise AI Team <ai-platform@example.com>']
-package-mode = true
+name = "multi-ai-workspace"
+version = "5.2.0"
+description = "Multi-AI Enterprise Monorepo Root"
+authors = ["Feridun <email@address.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
-python = '>=3.11,<3.14'
-fastapi = '^0.104.1'
-uvicorn = { extras = ['standard'], version = '^0.24.0' }
-redis = '^5.0.0'
-faststream = { extras = ['redis'], version = '^0.5.0' }
-temporalio = '^1.5.0'
-opentelemetry-api = '^1.20.0'
-opentelemetry-sdk = '^1.20.0'
-opentelemetry-exporter-otlp = '^1.20.0'
-pydantic = { extras = ['email'], version = '^2.5.0' }
-pydantic-settings = '^2.1.0'
-cryptography = '^41.0.0'
-python-dotenv = '^1.0.0'
-httpx = '^0.25.0'
-docker = '^6.1.0'
-pyyaml = '^6.0.1'
-async-timeout = '^4.0.3'
-tenacity = '^8.2.3'
-prometheus-client = '^0.19.0'
+python = "^3.10"
 
-# --- LOCAL PACKAGES ---
-multi-ai-core = {path = './libs/core', develop = true}
-multi-ai-events = {path = './libs/events', develop = true}
-multi-ai-orchestrator = {path = './libs/orchestrator', develop = true}
-multi-ai-llm = {path = './libs/llm', develop = true}
-multi-ai-sandbox = {path = './libs/sandbox', develop = true}
-multi-ai-git = {path = './libs/git', develop = true}
-multi-ai-compliance = {path = './libs/compliance', develop = true}
-reportlab = "^4.4.5"
-qrcode = "^8.2"
-multi-ai-utils = {path = "libs/utils", develop = true}
-multi-ai-agents = {path = "libs/agents", develop = true}
-multi-ai-rag = {path = "libs/rag", develop = true}
-streamlit = "^1.51.0"
-plotly = "^6.5.0"
-flask = "^3.1.2"
+# --- LOCAL LIBRARIES ---
+multi-ai-core = {path = "./libs/core", develop = true}
+multi-ai-utils = {path = "./libs/utils", develop = true}
+multi-ai-llm = {path = "./libs/llm", develop = true}
+multi-ai-rag = {path = "./libs/rag", develop = true}
+multi-ai-agents = {path = "./libs/agents", develop = true}
+multi-ai-orchestrator = {path = "./libs/orchestrator", develop = true}
+multi-ai-events = {path = "./libs/events", develop = true}
+multi-ai-sandbox = {path = "./libs/sandbox", develop = true}
+multi-ai-compliance = {path = "./libs/compliance", develop = true}
+multi-ai-git = {path = "./libs/git", develop = true}
 
-[tool.poetry.group.dev.dependencies]
-pytest = '^7.4.0'
-pytest-asyncio = '^0.21.0'
-pytest-cov = '^4.1.0'
-black = '^23.0.0'
-isort = '^5.12.0'
-mypy = '^1.7.0'
-bandit = '^1.7.5'
-tox = '^4.11.0'
-pre-commit = '^3.5.0'
-types-redis = '^4.6.0'
-types-PyYAML = '^6.0.0'
-faker = '^20.0.0'
+# --- EXTERNAL DEPENDENCIES ---
+streamlit = "^1.32.0"
+plotly = "^5.19.0"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+temporalio = "^1.4.0"
+matplotlib = "^3.8.0"
+Pillow = "^10.0.0"
+watchdog = "^4.0.0"
+scipy = "^1.11.0"
+requests = "^2.31.0"
+httpx = "^0.27.0"
+cryptography = "^42.0.0"
+prometheus-client = "^0.20.0"
+
+# FastStream'i doğru şekilde (Extras ile) ekliyoruz
+faststream = {extras = ["redis"], version = "^0.5.0"} 
+tenacity = "^9.1.2"
 
 [build-system]
-requires = ['poetry-core']
-build-backend = 'poetry.core.masonry.api'
-
-[tool.black]
-line-length = 100
-target-version = ['py311']
-
-[tool.isort]
-profile = 'black'
-multi_line_output = 3
-
-[tool.mypy]
-python_version = '3.11'
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-strict_equality = true
-
-[tool.pytest.ini_options]
-asyncio_mode = 'auto'
-minversion = '7.0'
-addopts = '--strict-markers --strict-config --cov=libs --cov-report=xml --cov-report=term-missing'
-markers = [
-    'unit: unit tests',
-    'integration: integration tests',
-    'e2e: end-to-end tests',
-    'security: security tests'
-]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

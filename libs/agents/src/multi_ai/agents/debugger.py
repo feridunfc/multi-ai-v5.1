@@ -1,33 +1,34 @@
+﻿from .base import BaseAgent
 import logging
-from typing import Dict
-from multi_ai.llm.hybrid_router import llm_router
 
 logger = logging.getLogger(__name__)
 
-class EnhancedDebuggerAgent:
+class EnhancedDebuggerAgent(BaseAgent):
     def __init__(self):
-        self.llm = llm_router
+        super().__init__(role="Debugger", model="deepseek-coder:6.7b")
 
-    async def diagnose_error(self, code_context: str, error_log: str) -> Dict:
-        logger.info("🚑 Debugger diagnosing error...")
+    async def diagnose_error(self, code: str, error_log: str) -> dict:
+        system_prompt = """
+        SEN UZMAN BİR HATA AYIKLAYICISIN (DEBUGGER).
+        Görevin: Verilen bozuk kodu ve hata mesajını analiz edip, HATAYI DÜZELTMEKTİR.
         
-        prompt = f'''
-        ROLE: Senior Python Debugger
-        TASK: Fix the code based on the error log.
+        KURALLAR:
+        1. Sadece hatayı düzelten kodu ver.
+        2. Eğer hata kütüphane eksikliği ise (ModuleNotFoundError), kodu standart kütüphanelerle çalışacak şekilde değiştir veya kullanıcıya uyarı ekle.
+        3. Eğer mantık hatası varsa (KeyError, IndexError), kontrol blokları (if/try-except) ekle.
+        4. Kodu tamamen yeniden yazma, sadece onarılmış halini ver.
         
-        BROKEN CODE:
-        {code_context}
+        ÇIKTI:
+        Sadece düzeltilmiş Python kodu.
+        """
         
-        ERROR LOG:
-        {error_log}
+        prompt = f"BOZUK KOD:\n{code}\n\nHATA MESAJI:\n{error_log}"
+        logger.info("🚑 Hata analizi yapılıyor...")
         
-        INSTRUCTION: Analyze the error and provide the FIXED code.
-        Return ONLY the fixed code block.
-        '''
+        fixed_code = await self._ask_llm(system_prompt, prompt)
         
-        try:
-            response = await self.llm.complete(prompt=prompt, task_type="coding")
-            return {"diagnosis": "Fix applied", "fixed_code": response}
-        except Exception as e:
-            logger.error(f"Debugger failed: {e}")
-            return {"error": str(e)}
+        # Markdown temizliği
+        if "`python" in fixed_code:
+            fixed_code = fixed_code.split("`python")[1].split("`")[0]
+            
+        return {"fixed_code": fixed_code.strip(), "diagnosis": "AI fix applied"}

@@ -1,14 +1,17 @@
 [tool.poetry]
 name = "multi-ai-rag"
-version = "6.0.0"
-description = "RAG Engine for Codebase Understanding"
+version = "0.1.0"
+description = "RAG System"
+authors = ["MultiAI Team"]
 packages = [{include = "multi_ai", from = "src"}]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.14"
-qdrant-client = "^1.7.0"
-sentence-transformers = "^2.2.0"
+python = "^3.10"
 multi-ai-core = {path = "../core", develop = true}
+multi-ai-utils = {path = "../utils", develop = true}
+multi-ai-llm = {path = "../llm", develop = true}
+qdrant-client = "^1.7.0"
+sentence-transformers = "^2.2.2"
 
 [build-system]
 requires = ["poetry-core"]

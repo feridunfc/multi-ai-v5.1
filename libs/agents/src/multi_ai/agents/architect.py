@@ -1,48 +1,49 @@
 import logging
 import json
-import re
-from typing import Dict, Optional
-from multi_ai.llm.client import llm_client
+from typing import Dict, Any, List
+from .base import BaseAgent
 
 logger = logging.getLogger(__name__)
 
-class EnhancedArchitectAgent:
+class EnhancedArchitectAgent(BaseAgent):
     def __init__(self):
-        self.llm = llm_client
+        super().__init__(role="Architect", model="qwen2.5:7b")
 
-    async def create_manifest(self, research: dict, goal: str) -> Dict:
-        logger.info(f'🏗️ Architect designing manifest for: {goal}')
-        
-        prompt = f'''
-        ROLE: Architect. GOAL: {goal}.
-        OUTPUT: JSON with artifacts list (path, purpose).
-        '''
-        
+    async def create_manifest(self, research_data: dict, task: str) -> Dict[str, Any]:
+        system_prompt = """
+        SEN BAŞ YAZILIM MİMARISIN (CHIEF SOFTWARE ARCHITECT).
+        Görevin: Verilen görevi, hatasız çalışacak bir dosya yapısına ve uygulama planına dönüştürmektir.
+
+        ÇIKTI FORMATI (KESİNLİKLE JSON):
+        {
+            "project_name": "proje_adi",
+            "description": "Proje açıklaması",
+            "dependencies": ["flask", "requests"],
+            "artifacts": [
+                {
+                    "path": "main.py",
+                    "purpose": "Ana uygulama mantığı",
+                    "instructions": "Detaylı talimatlar..."
+                }
+            ]
+        }
+
+        KURALLAR:
+        1. Sadece geçerli JSON döndür. Başka hiçbir metin yazma.
+        2. Dosya yolları mantıklı ve düzenli olsun.
+        3. 'dependencies' listesine sadece gerçekten gerekenleri ekle.
+        """
+
+        context = f"Task: {task}\nResearch: {json.dumps(research_data)}"
+        logger.info(f"🏗️ Mimari plan hazırlanıyor...")
+
+        raw_response = await self._ask_llm(system_prompt, context, json_mode=True)
+
         try:
-            response = await self.llm.generate(prompt=prompt)
-            # Temizleme
-            clean = re.sub(r'`(?:\w+)?\s*', '', response).replace('`', '').strip()
-            # Bazen LLM sadece aciklama yazar, JSON bulmaya calisalim
-            json_match = re.search(r'\{.*\}', clean, re.DOTALL)
-            if json_match:
-                clean = json_match.group(0)
-            
-            data = json.loads(clean)
-            if 'artifacts' not in data: 
-                raise ValueError('Missing artifacts key')
-            return data
-            
-        except Exception as e:
-            logger.warning(f'Architect JSON fail: {e}. Using Fallback.')
-            # Fallback Plan (Yedek)
+            return json.loads(raw_response)
+        except json.JSONDecodeError:
+            logger.error("Architect JSON üretemedi, Fallback kullanılıyor.")
             return {
-                'sprint_id': 'fallback_sprint', 
-                'artifacts': [
-                    {
-                        'path': 'main.py', 
-                        'purpose': f'Implement {goal}', 
-                        'type': 'code',
-                        'expected_behavior': f'Logic for {goal}'
-                    }
-                ]
+                "project_name": "fallback_project",
+                "artifacts": [{"path": "main.py", "purpose": "Single file script", "instructions": task}]
             }

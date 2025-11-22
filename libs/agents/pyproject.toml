@@ -1,16 +1,17 @@
 [tool.poetry]
-name = 'multi-ai-agents'
-version = '5.2.0'
-description = 'Advanced AI Agents (Supervisor, Researcher, Architect)'
-packages = [{include = 'multi_ai', from = 'src'}]
+name = "multi-ai-agents"
+version = "0.1.0"
+description = "AI Agents"
+authors = ["MultiAI Team"]
+packages = [{include = "multi_ai", from = "src"}]
 
 [tool.poetry.dependencies]
-python = '>=3.11,<3.14'
-multi-ai-core = {path = '../core', develop = true}
-multi-ai-llm = {path = '../llm', develop = true}
-multi-ai-sandbox = {path = '../sandbox', develop = true}
-multi-ai-compliance = {path = '../compliance', develop = true}
+python = "^3.10"
+multi-ai-core = {path = "../core", develop = true}
+multi-ai-utils = {path = "../utils", develop = true}
+multi-ai-llm = {path = "../llm", develop = true}
+multi-ai-rag = {path = "../rag", develop = true}
 
 [build-system]
-requires = ['poetry-core']
-build-backend = 'poetry.core.masonry.api'
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

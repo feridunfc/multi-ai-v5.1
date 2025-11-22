@@ -1,17 +1,14 @@
 [tool.poetry]
-name = 'multi-ai-events'
-version = '5.1.0'
-description = 'Event schemas and Redis/FastStream broker'
-packages = [{ include = 'multi_ai/events', from = 'src' }]
+name = "multi-ai-events"
+version = "0.1.0"
+description = "Event Schemas"
+authors = ["MultiAI Team"]
+packages = [{include = "multi_ai", from = "src"}]
 
 [tool.poetry.dependencies]
-python = '>=3.11,<3.14'
-pydantic = '^2.5.0'
-faststream = { extras = ['redis'], version = '^0.5.0' }
-redis = '^5.0.0'
-tenacity = '^8.2.3'
-multi-ai-core = { path = '../core', develop = true }
+python = "^3.10"
+pydantic = "^2.6.0"
 
-[tool.poetry.group.dev.dependencies]
-pytest = '^7.4.0'
-pytest-asyncio = '^0.21.0'
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

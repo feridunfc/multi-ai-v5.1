@@ -37,33 +37,35 @@ class ObservabilitySettings(BaseSettings):
     service_version: str = '5.1.0'
     log_level: str = 'INFO'
 
-# --- LLM AYARLARI ---
-class LLMSettings(BaseSettings):
+# --- DÜZELTİLEN KISIM: OLLAMA AYARLARI ---
+class OllamaSettings(BaseSettings):
     model_config = ConfigDict(extra='ignore')
-    provider: str = 'ollama'
-    model_name: str = 'llama3.2:1b'   # <--- MODEL ADI BURADA
-    base_url: str = 'http://localhost:11434/v1'
-    api_key: str = 'ollama'
-    temperature: float = 0.7
+    # Windows için 127.0.0.1 zorunlu, /v1 kaldırıldı
+    base_url: str = 'http://127.0.0.1:11434'
+    default_model: str = 'llama3.2:1b'
+    coder_model: str = 'deepseek-coder:6.7b'
+    temperature: float = 0.2
 
 class PlatformSettings(BaseSettings):
     model_config = ConfigDict(env_prefix='MULTI_AI_', case_sensitive=False, extra='ignore')
-    
+
     environment: str = 'development'
-    debug: bool = False
+    debug: bool = True
     log_format: str = 'json'
-    
-    kms: KMSSettings = KMSSettings()
-    database: DatabaseSettings = DatabaseSettings()
-    redis: RedisSettings = RedisSettings()
-    temporal: TemporalSettings = TemporalSettings()
-    observability: ObservabilitySettings = ObservabilitySettings()
-    llm: LLMSettings = LLMSettings()
-    
+
+    kms: KMSSettings = Field(default_factory=KMSSettings)
+    database: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    redis: RedisSettings = Field(default_factory=RedisSettings)
+    temporal: TemporalSettings = Field(default_factory=TemporalSettings)
+    observability: ObservabilitySettings = Field(default_factory=ObservabilitySettings)
+
+    # ARTIK 'llm' YERİNE 'ollama' KULLANILIYOR
+    ollama: OllamaSettings = Field(default_factory=OllamaSettings)
+
     github_app_id: Optional[str] = None
     github_private_key: Optional[str] = None
-    github_webhook_secret: Optional[str] = None
-    
+    github_webhook_secret: Optional[str] = "dummy_secret"
+
     base_dir: Path = Path.cwd()
     cache_dir: Path = Path.cwd() / '.cache'
 
