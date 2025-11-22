@@ -18,20 +18,21 @@ class EnhancedArchitectAgent(BaseAgent):
         {
             "project_name": "proje_adi",
             "description": "Proje açıklaması",
-            "dependencies": ["flask", "requests"],
+            "dependencies": ["tkinter", "math"],
             "artifacts": [
                 {
-                    "path": "main.py",
+                    "path": "main.py",  # ⭐ KRİTİK: MUTLAKA path OLMALI!
                     "purpose": "Ana uygulama mantığı",
                     "instructions": "Detaylı talimatlar..."
                 }
             ]
         }
 
-        KURALLAR:
-        1. Sadece geçerli JSON döndür. Başka hiçbir metin yazma.
-        2. Dosya yolları mantıklı ve düzenli olsun.
-        3. 'dependencies' listesine sadece gerçekten gerekenleri ekle.
+        KRİTİK KURALLAR:
+        1. 'artifacts' listesindeki HER öğenin MUTLAKA 'path' field'ı olmalı
+        2. 'path' boş string veya null OLMAMALI
+        3. Dosya yolları geçerli ve mantıklı olsun
+        4. 'dependencies' listesine sadece gerçekten gerekenleri ekle
         """
 
         context = f"Task: {task}\nResearch: {json.dumps(research_data)}"
@@ -40,10 +41,33 @@ class EnhancedArchitectAgent(BaseAgent):
         raw_response = await self._ask_llm(system_prompt, context, json_mode=True)
 
         try:
-            return json.loads(raw_response)
+            manifest = json.loads(raw_response)
+
+            # ⭐ GÜVENLİK KONTROLÜ: Path'leri kontrol et
+            artifacts = manifest.get('artifacts', [])
+            for artifact in artifacts:
+                if not artifact.get('path') or artifact['path'].strip() == '':
+                    artifact['path'] = 'main.py'  # Fallback
+                    logger.warning("⚠️ Boş path bulundu, fallback kullanılıyor")
+
+            # Eğer artifacts yoksa, default ekle
+            if not artifacts:
+                manifest['artifacts'] = [{
+                    'path': 'main.py',
+                    'purpose': 'Main application',
+                    'instructions': task
+                }]
+                logger.warning("⚠️ Hiç artifact yok, default eklendi")
+
+            return manifest
+
         except json.JSONDecodeError:
             logger.error("Architect JSON üretemedi, Fallback kullanılıyor.")
             return {
                 "project_name": "fallback_project",
-                "artifacts": [{"path": "main.py", "purpose": "Single file script", "instructions": task}]
+                "artifacts": [{
+                    "path": "main.py",  # ⭐ FALLBACK'te bile path var
+                    "purpose": "Single file script",
+                    "instructions": task
+                }]
             }

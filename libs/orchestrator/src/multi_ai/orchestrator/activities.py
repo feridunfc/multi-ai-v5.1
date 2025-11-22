@@ -155,57 +155,92 @@ class AgentActivities:
             )
 
     @activity.defn
+
     async def coder_implement(self, input: AgentInput) -> AgentOutput:
-        """Coder ajanını çalıştırır"""
+        """Coder ajanını çalıştırır - GÜVENLİ VERSİYON"""
         activity.logger.info(f'💻 Coder implementing: {input.activity_id}')
         try:
             manifest = input.metadata.get('manifest', {})
             artifacts = manifest.get('artifacts', [])
 
+            # ⭐ KRİTİK: Manifest kontrolü
             if not artifacts:
-                artifacts = [{'path': 'main.py', 'purpose': 'Main application', 'instructions': input.instruction}]
+                artifacts = [{
+                    'path': 'main.py',
+                    'purpose': 'Main application',
+                    'instructions': input.instruction
+                }]
+                activity.logger.warning("⚠️ No artifacts in manifest, using default main.py")
 
             agent = EnhancedCoderAgent()
             created_files = []
+            last_code_content = ""
 
             for artifact in artifacts:
+                # ⭐ GÜVENLİ PATH OLUŞTURMA
+                file_path = artifact.get('path', '').strip()
+                if not file_path:
+                    file_path = 'main.py'
+                    activity.logger.warning(f"⚠️ Empty path, using: {file_path}")
+
+                # Dosya adı güvenli mi kontrol et
+                if not file_path.endswith('.py'):
+                    file_path += '.py'
+                    activity.logger.info(f"📝 Added .py extension: {file_path}")
+
+                # Kodu üret
+                activity.logger.info(f"📄 Generating code for: {file_path}")
                 code_content = await agent.implement_artifact(artifact, input.activity_id)
-                file_path = artifact.get('path', 'main.py')
+                last_code_content = code_content  # Son kodu sakla
+
+                # ⭐ DİZİN OLUŞTURMA
+                directory = os.path.dirname(file_path)
+                if directory and not os.path.exists(directory):
+                    os.makedirs(directory, exist_ok=True)
+                    activity.logger.info(f"📁 Directory created: {directory}")
 
                 # Kodu dosyaya yaz
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(code_content)
 
                 created_files.append(file_path)
+                activity.logger.info(f"✅ File created: {file_path} ({len(code_content)} chars)")
 
-                # Her dosya için ledger kaydı
+                # Ledger kaydı
                 self.ledger.record_entry(
                     sprint_id=input.activity_id,
                     action="CODE_IMPLEMENT",
                     data={
                         "agent_type": "CODER",
                         "file": file_path,
-                        "purpose": artifact.get('purpose'),
-                        "file_path": file_path
+                        "purpose": artifact.get('purpose', ''),
+                        "file_path": file_path,
+                        "content_length": len(code_content)
                     }
                 )
 
             main_file = created_files[0] if created_files else 'main.py'
+
             return AgentOutput(
                 activity_id=input.activity_id,
                 status="success",
-                data={"files": created_files, "code_content": code_content},
+                data={
+                    "files": created_files,
+                    "code_content": last_code_content,
+                    "main_file": main_file
+                },
                 file_path=main_file,
-                result="Coded"
+                result=f"Coded {len(created_files)} files"
             )
+
         except Exception as e:
             logger.error(f"Coder error: {e}")
+            # Hata durumunda bile boş path dönme
             return AgentOutput(
                 activity_id=input.activity_id,
                 status="error",
                 data={"error": str(e)},
-                file_path=""
+                file_path="main.py"  # ⭐ Fallback path
             )
 
     @activity.defn

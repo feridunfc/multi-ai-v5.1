@@ -72,6 +72,7 @@ class SupervisorWorkflow:
         # ---------------------------------------------------------------------
         workflow.logger.info("⏳ AŞAMA 2: Kodlama Başlıyor...")
 
+        # Workflow'da coder'dan sonra:
         code_out = await workflow.execute_activity(
             AgentActivities.coder_implement,
             AgentInput(
@@ -83,6 +84,30 @@ class SupervisorWorkflow:
                 }
             ),
             start_to_close_timeout=timedelta(minutes=20)
+        )
+
+        # ⭐ KRİTİK: Coder çıktısını GÜVENLİ şekilde al
+        current_file = code_out.file_path if code_out.file_path else 'main.py'
+        self.generated_code = code_out.data.get('code_content', '') if code_out.data else ''
+
+        # Eğer coder hata verdi ama fallback path varsa
+        if code_out.status == 'error' and not current_file:
+            current_file = 'main.py'
+            workflow.logger.warning("⚠️ Coder filed but using fallback main.py")
+
+        # Tester'a GÜVENLİ veri gönder
+        test_res = await workflow.execute_activity(
+            AgentActivities.tester_run,
+            AgentInput(
+                task_id,
+                current_file,  # ⭐ Artık boş olmayacak
+                {
+                    'code_content': self.generated_code,
+                    'file_path': current_file
+                }
+            ),
+            start_to_close_timeout=timedelta(minutes=2)
+
         )
 
         current_file = code_out.file_path
